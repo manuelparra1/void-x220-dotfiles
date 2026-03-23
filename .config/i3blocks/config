@@ -1,0 +1,86 @@
+# --- CENTER BLOCK ---
+# Define the title block first logically, but ensure all right-aligned blocks
+# are defined *after* it in this file.
+[title]
+command=~/Scripts/window_title.sh
+interval=1
+align=center 
+separator=false
+
+[gap]
+command=echo "                                                                                                                         "
+interval=once
+min_width=5
+align=left
+separator=false
+
+# --- RIGHT BLOCKS ---
+# These appear after the center block definition.
+# Using align=right ensures they stack from the right edge.
+
+# [wifi]
+# command=~/Scripts/wifi_status.sh
+# interval=5
+# align=right
+# separator=false
+
+[gap]
+command=echo " "
+interval=once
+min_width=5
+align=right
+separator=false
+
+# [volume]
+# command=~/Scripts/volume.sh
+# signal=1
+# align=right
+# separator=false
+
+[cpu_temp]
+command=~/Scripts/cpu_temp.sh
+interval=2
+align=right
+separator=false
+
+[volume]
+command=~/Scripts/volume.sh
+interval=15
+align=right
+separator=false
+
+# [battery]
+# command=/usr/lib/i3blocks/battery/battery
+# interval=5
+# label=󰂄 
+# align=right
+# separator=false
+
+[battery]
+command=~/Scripts/battery.sh
+interval=1
+markup=pango
+min_width= 100%
+align=right
+separator=false
+
+[time]
+command=date +"%a  %b  %-d  %-l:%M%P"
+interval=15
+# label= 
+align=right
+separator=false
+
+# [cpu_usage]
+# command=/usr/lib/i3blocks/cpu_usage # Removed extra /cpu_usage
+# interval=10
+# label=
+# separator=true # Would need align=right if uncommented
+# separator_block_width=15
+
+# [mem]
+# command=/usr/lib/i3blocks/memory # Removed extra /memory
+# interval=30
+# label=
+# separator=true # Would need align=right if uncommented
+# separator_block_width=15

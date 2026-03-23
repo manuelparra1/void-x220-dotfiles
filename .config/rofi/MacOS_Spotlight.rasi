@@ -1,0 +1,96 @@
+configuration {
+    modi: "drun";
+    show-icons: true;
+    terminal: "kitty";
+    location: 0;
+    disable-history: false;
+    hide-scrollbar: true;
+    drun-display-format: "{name}";
+    display-drun: "";
+    sidebar-mode: false;
+}
+
+* {
+    border: none;
+    border-radius: 15px;
+    font: "SFProDisplay Nerd Font SemiBold 14";
+    background-color: transparent;
+    text-color: #cdd6f4;
+    margin: 0px;
+    padding: 0px;
+    spacing: 0px;
+}
+
+window {
+    background-color: rgba(50, 50, 50, 0.99);
+    border-radius: 15px;
+    padding: 1px;
+    width: 50%;
+}
+
+mainbox {
+    background-color: transparent;
+    children: [ inputbar, listview ];
+    spacing: 1px;
+    padding: 1px;
+}
+
+inputbar {
+    background-color: rgba(50, 50, 50, 0.9);
+    border-radius: 15px;
+    padding: 8px 12px;
+    children: [ prompt, entry ];
+    spacing: 8px;
+}
+
+prompt {
+    background-color: transparent;
+    text-color: #cdd6f4;
+    font: "SFProDisplay Nerd Font SemiBold 14";
+}
+
+entry {
+    background-color: transparent;
+    text-color: #cdd6f4;
+    font: "SFProDisplay Nerd Font SemiBold 20";
+    // placeholder: "Type to search...";
+    placeholder-color: rgba(255, 255, 255, 0.5);
+    cursor: text;
+}
+
+listview {
+    background-color: transparent;
+    scrollbar: false;
+    spacing: 2px;
+    lines: 8;
+}
+
+element {
+    background-color: transparent;
+    text-color: #cdd6f4;
+    border-radius: 15px;
+    padding: 8px 12px;
+    spacing: 8px;
+}
+
+element selected {
+    // background-color: #007aff;
+    // background-color: #cba6f7;
+    background-color: #7372c3;
+    text-color: #cdd6f4;
+    border-radius: 15px;
+}
+
+element-icon {
+    background-color: transparent;
+    text-color: inherit;
+    size: 24px;
+    cursor: inherit;
+}
+
+element-text {
+    background-color: transparent;
+    text-color: inherit;
+    cursor: inherit;
+    vertical-align: 0.5;
+}

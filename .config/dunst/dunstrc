@@ -1,0 +1,43 @@
+[global]
+width         = (200, 800)
+corner_radius = 44
+padding = 10
+new_icon      = ~/.config/dunst/xbox_360_live_notification_achievement.png
+origin        = bottom-center
+max_icon_size = 64
+min_icon_size = 32
+height = (0, 80)
+
+# Key settings for preventing persistent popups
+stack_duplicates = false
+notification_limit = 1          # Only 1 notification visible at a time
+indicate_hidden = false         # Don't show count of hidden notifications
+idle_threshold = 0             # Don't pause notifications when idle
+
+# Timeout and replacement behavior
+sticky_history = false         # Don't make notifications sticky in history
+history_length = 20           # Keep reasonable history without cluttering
+
+offset        = (0, 10)
+icon_position = left
+format        = "<b>%s</b>\n%b"
+font          = "Segoe UI 14"
+markup        = full
+
+# Force immediate replacement (important!)
+sort = true                    # Sort by urgency and time
+
+[urgency_low]
+background    = "#3d3d3d"
+foreground    = "#ffffff"
+timeout       = 3
+
+[urgency_normal]
+background    = "#3d3d3d"
+foreground    = "#ffffff"
+timeout       = 3
+
+[urgency_critical]
+background    = "#3d3d3d"
+foreground    = "#ffffff"
+timeout       = 3
