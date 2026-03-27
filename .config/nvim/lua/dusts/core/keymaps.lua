@@ -11,6 +11,16 @@ vim.opt.nrformats:append("alpha")
 -- General Keymaps
 -- =============================================================================
 
+-- Notify current file's directory
+keymap.set("n", "<leader>fp", function()
+	print(vim.fn.expand("%:p:h"))
+end, { desc = "Print current file's directory" })
+
+-- Insert Calendar `cal` output
+keymap.set("n", "<leader>id", function()
+	vim.cmd("read !cal")
+end, { desc = "Insert calendar output" })
+
 -- Exit insert mode
 keymap.set("i", "jk", "<ESC>", { desc = "Exit insert mode with jk" })
 keymap.set("v", "jkj", "<Esc>", { desc = "Exit visual mode" }) -- You had this twice, kept one
@@ -75,6 +85,10 @@ end, { desc = "Create lettered list from visual selection" })
 keymap.set("n", "<leader>aa", function()
 	utils.create_list_paragraph()
 end, { desc = "Create lettered list from current paragraph" })
+
+vim.keymap.set("n", "<leader>tp", function()
+	utils.open_in_typora()
+end, { desc = "Open in Typora" })
 
 -- =============================================================================
 -- External Utility Keybinds / Keymaps

@@ -194,62 +194,102 @@ function M.setup(llm, services, prompts)
 		local api_key = api_key_name and os.getenv(api_key_name)
 		local data = {}
 
-		-- Service Behavior Change
-		-- ====================================================================
-		-- 1. Modify the prompt_text BEFORE creating the data payload.
-		-- This ensures it works for OpenAI, Nemotron, and generic providers
-		if instructions == prompts.code_system_prompt then
-			prompt_text = string.format("Using %s for comments, respond to: %s", comment_syntax, prompt_text)
-		end
+		-- if service == "gpt_5" then
+		-- 	data = {
+		-- 		model = model,
+		-- 		stream = true,
+		-- 		response_format = { type = "text" },
+		-- 		verbosity = opts.verbosity or "medium",
+		-- 		reasoning_effort = opts.reasoning_effort or "medium",
+		-- 		messages = {
+		-- 			{ role = "developer", content = { { type = "text", text = instructions } } },
+		-- 			{ role = "user", content = { { type = "text", text = prompt_text } } },
+		-- 		},
+		-- 	}
+		-- else
+		-- 	data = {
+		-- 		model = model,
+		-- 		stream = true,
+		-- 		max_tokens = opts.max_tokens or 8000,
+		-- 		temperature = opts.temperature or 0.3,
+		-- 		messages = {
+		-- 			{ role = "system", content = instructions },
+		-- 			{ role = "user", content = prompt_text },
+		-- 		},
+		-- 	}
 
-		-- 2. Build the data table
 		if service == "gpt_5" or service == "openai" then
 			data = {
 				model = model,
 				stream = true,
-				-- OpenAI O-series models use 'developer' roles and 'reasoning_effort'
 				response_format = { type = "text" },
-				verbosity = opts.verbosity or "low",
-				reasoning_effort = opts.reasoning_effort or "low",
 				messages = {
 					{ role = "developer", content = { { type = "text", text = instructions } } },
 					{ role = "user", content = { { type = "text", text = prompt_text } } },
 				},
 			}
-		-- 3. Moved Nemotron to its own elseif to avoid nesting and overwriting generic data
-		elseif service == "nemotron_ultra" then
-			local system_content = string.format("detailed thinking %s", thinking_mode)
-			local final_user_prompt = instructions .. "\n\n---\n\n" .. prompt_text
 
+			-- Only append these if they are passed in via the keymap opts
+			if opts.verbosity then
+				data.verbosity = opts.verbosity
+			end
+			if opts.reasoning_effort then
+				data.reasoning_effort = opts.reasoning_effort
+			end
+		elseif service == "codex" then
+			-- Codex uses the /v1/responses format
 			data = {
 				model = model,
-				stream = true,
-				max_tokens = opts.max_tokens or 40960,
-				messages = {
-					{ role = "system", content = system_content },
-					{ role = "user", content = final_user_prompt },
+				input = {
+					{ role = "developer", content = { { type = "input_text", text = instructions } } },
+					{ role = "user", content = { { type = "input_text", text = prompt_text } } },
 				},
+				text = {
+					format = { type = "text" },
+				},
+				reasoning = {},
+				store = false,
 			}
 
-			if thinking_mode == "on" then
-				data.temperature = opts.temperature or 0.6
-				data.top_p = opts.top_p or 0.95
-			else
-				data.temperature = 0.0
-				data.top_p = nil
+			if opts.verbosity then
+				data.text.verbosity = opts.verbosity
+			end
+			if opts.reasoning_effort then
+				data.reasoning.effort = opts.reasoning_effort
 			end
 		else
-			-- 4. Generic provider fallback
+			-- Standard fallback for OpenRouter, Anthropic, Grok, etc.
 			data = {
 				model = model,
 				stream = true,
-				max_tokens = opts.max_tokens or 40960,
-				temperature = opts.temperature or 0.80,
+				max_tokens = opts.max_tokens or 8000,
+				temperature = opts.temperature or 0.3,
 				messages = {
 					{ role = "system", content = instructions },
 					{ role = "user", content = prompt_text },
 				},
 			}
+
+			if service == "nemotron_ultra" or service == "nemotron" then
+				local system_content = string.format("detailed thinking %s", thinking_mode)
+				local final_user_prompt = instructions .. "\n\n---\n\n" .. prompt_text
+				data.messages = {
+					{ role = "system", content = system_content },
+					{ role = "user", content = final_user_prompt },
+				}
+				if thinking_mode == "on" then
+					data.temperature = opts.temperature or 0.6
+					data.top_p = opts.top_p or 0.95
+				else
+					data.temperature = 0.0
+					data.top_p = nil
+				end
+			end
+
+			if instructions == prompts.code_system_prompt then
+				prompt_text = string.format("Using %s for comments, respond to: %s", comment_syntax, prompt_text)
+				data.messages[2].content = prompt_text
+			end
 		end
 
 		local args = {

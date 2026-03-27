@@ -4,6 +4,9 @@ local opt = vim.opt -- for conciseness
 opt.relativenumber = true -- show relative line numbers
 opt.number = true -- shows absolute line number on cursor line (when relative number is on)
 
+-- Obsidian Setting
+opt.conceallevel = 0
+
 -- vim motions
 opt.nrformats:append("alpha") -- treat numbers with letters as numbers (e.g., 10a -> 10)
 
