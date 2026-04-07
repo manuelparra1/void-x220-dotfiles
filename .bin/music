@@ -1,0 +1,15 @@
+#!/bin/bash
+
+# Check if a file or directory was actually passed
+if [ -z "$1" ]; then
+    echo "Usage: music <file_or_directory>"
+    exit 1
+fi
+
+# Run our heavily customized mpv command
+# "$@" ensures that all arguments (and spaces in filenames) are passed safely
+mpv --no-audio-display \
+--msg-level=all=fatal,statusline=status \
+--term-status-msg="\${playback-time} / \${duration} (\${percent-pos}%)" \
+--ao=pulse \
+"$@"

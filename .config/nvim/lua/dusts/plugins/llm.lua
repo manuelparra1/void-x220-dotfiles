@@ -12,7 +12,7 @@ return {
 
 		-- 1. Base Setup
 		llm.setup({
-			system_prompt = prompts.system_prompt,
+			system_prompt = prompts.note_system_prompt,
 			system_prompt_replace = prompts.system_prompt_replace,
 			services = services,
 		})

@@ -4,9 +4,6 @@ local opt = vim.opt -- for conciseness
 opt.relativenumber = true -- show relative line numbers
 opt.number = true -- shows absolute line number on cursor line (when relative number is on)
 
--- Obsidian Setting
-opt.conceallevel = 0
-
 -- vim motions
 opt.nrformats:append("alpha") -- treat numbers with letters as numbers (e.g., 10a -> 10)
 
@@ -18,6 +15,7 @@ opt.autoindent = true -- copy indent from current line when starting new one
 
 -- line wrapping
 opt.wrap = true -- disable line wrapping
+opt.linebreak = true -- break lines at word (requires wrap to be on)
 -- opt.breakindent = true -- indent wrapped lines
 -- opt.showbreak = "↪ " -- show a character at the start of wrapped lines
 

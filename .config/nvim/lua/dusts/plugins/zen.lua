@@ -3,19 +3,23 @@ return {
 		"folke/zen-mode.nvim",
 		opts = {
 			window = {
-				width = 80,
-				-- plugins = {
-				-- 	-- twilight = { enabled = true },
-				-- 	-- wezterm = { enabled = true, font = "+3" },
-				-- },
-				-- your configuration comes here
-				-- or leave it empty to use the default settings
-				-- refer to the configuration section below
+				width = 68,
+				options = {
+					number = false,
+					relativenumber = false,
+					signcolumn = "no",
+				},
+			},
+			plugins = {
+				twilight = { enabled = true },
+				kitty = { enabled = true, font = "+4" },
 			},
 		},
 	},
-	-- {
-	-- 	"folke/twilight.nvim",
-	-- 	opts = {},
-	-- },
+	{
+		"folke/twilight.nvim",
+		opts = {
+			context = 1,
+		},
+	},
 }

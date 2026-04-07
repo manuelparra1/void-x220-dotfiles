@@ -28,7 +28,7 @@ function M.setup(llm, prompts)
 			service = "anthropic",
 			system_prompt = prompts.note_system_prompt,
 		})
-	end, { desc = "Claude Opus 4.6 = $5.00/$25.00" })
+	end, { desc = "Claude Opus 4.6 $5/$25" })
 
 	-- GPT-5
 	vim.keymap.set("v", "<leader>nt", function()
@@ -37,21 +37,9 @@ function M.setup(llm, prompts)
 			system_prompt = prompts.note_system_prompt,
 			temperature = 0.75,
 			verbosity = "low",
-			reasoning_effort = "high",
-		})
-	end, { desc = "GPT-5.4 = $2.50/$15.00" })
-
-	-- GPT-5 Nano
-	vim.keymap.set("v", "<leader>ngn", function()
-		llm.prompt_selection_only_append({
-			service = "openai",
-			system_prompt = prompts.note_system_prompt,
-			temperature = 0.75,
-			verbosity = "low",
 			reasoning_effort = "medium",
 		})
-		-- end, { desc = "GPT-5 Mini = $0.25/$2.00" })
-	end, { desc = "GPT-5.4 Nano = $0.20/$1.25" })
+	end, { desc = "GPT-5.4 $2.50/$15" })
 
 	-- Grok
 	vim.keymap.set("v", "<leader>nk", function()
@@ -60,7 +48,7 @@ function M.setup(llm, prompts)
 			system_prompt = prompts.note_system_prompt,
 			temperature = 0.75,
 		})
-	end, { desc = "Grok 4.1 Fast Reasoning = $0.20/$0.50" })
+	end, { desc = "Grok 4.1 Fast Non-Reasoning $0.20/$0.50" })
 
 	-- OpenRouter
 	vim.keymap.set("v", "<leader>no", function()
@@ -71,54 +59,14 @@ function M.setup(llm, prompts)
 		})
 	end, { desc = "Trinity Large" })
 
-	-- Kimi
-	vim.keymap.set("v", "<leader>kk", function()
+	-- Gemini Flash Lite
+	vim.keymap.set("v", "<leader>ngl", function()
 		llm.prompt_selection_only_append({
-			service = "kimi_k2",
+			service = "flash_lite",
 			system_prompt = prompts.note_system_prompt,
 			temperature = 0.75,
 		})
-	end, { desc = "Kimi K2.5 $0.45/$2.25" })
-
-	-- Mimo V2 Flash
-	vim.keymap.set("v", "<leader>nmi", function()
-		llm.prompt_selection_only_append({
-			service = "mimo",
-			system_prompt = prompts.note_system_prompt,
-			temperature = 0.75,
-		})
-	end, { desc = "Mimo V2 Flash 309B A15B - $0.09/$0.29" })
-
-	-- Minimax
-	vim.keymap.set("v", "<leader>nmx", function()
-		llm.prompt_selection_only_append({
-			service = "minimax",
-			system_prompt = prompts.note_system_prompt,
-			temperature = 0.75,
-		})
-	end, { desc = "Minimax 2.7 - $0.30/$1.20" })
-
-	-- StepFun Step 3.5 Flash
-	vim.keymap.set("v", "<leader>nsf", function()
-		llm.prompt_selection_only_append({
-			service = "stepfun",
-			system_prompt = prompts.note_system_prompt,
-			temperature = 0.75,
-		})
-	end, { desc = "StepFun Step 3.5 Flash - Free" })
-
-	-- ===========================================================================
-	--  GOOGLE
-	-- ===========================================================================
-
-	-- Gemini Pro
-	vim.keymap.set("v", "<leader>ngp", function()
-		llm.prompt_selection_only_append({
-			service = "gemini",
-			system_prompt = prompts.note_system_prompt,
-			temperature = 0.75,
-		})
-	end, { desc = "Gemini 3 Pro = $2.00/$12.00" })
+	end, { desc = "Gemini 3.1 Flash-Lite $0.25/$1.50" })
 
 	-- Gemini Flash
 	vim.keymap.set("v", "<leader>ngf", function()
@@ -127,16 +75,7 @@ function M.setup(llm, prompts)
 			system_prompt = prompts.note_system_prompt,
 			temperature = 0.75,
 		})
-	end, { desc = "Gemini 3.0 Flash = $0.50/$3.00" })
-
-	-- Gemini Flash
-	vim.keymap.set("v", "<leader>ngl", function()
-		llm.prompt_selection_only_append({
-			service = "flash_lite",
-			system_prompt = prompts.note_system_prompt,
-			temperature = 0.75,
-		})
-	end, { desc = "Gemini 3.1 Flash Lite = $0.25/$1.50" })
+	end, { desc = "Gemini 3 Flash $0.50/$3.00" })
 
 	-- Qwen
 	vim.keymap.set("v", "<leader>nw", function()
@@ -145,7 +84,27 @@ function M.setup(llm, prompts)
 			system_prompt = prompts.note_system_prompt,
 			temperature = 0.75,
 		})
-	end, { desc = "Qwen 3.5 Flash = $0.10/$0.40" })
+	end, { desc = "Qwen3.5 Flash $0.10/$0.40" })
+
+	-- Gemini Pro
+	vim.keymap.set("v", "<leader>ngp", function()
+		llm.prompt_selection_only_append({
+			service = "gemini",
+			system_prompt = prompts.note_system_prompt,
+			temperature = 0.75,
+		})
+	end, { desc = "Gemini 3 Pro $2/$12" })
+
+	-- GPT-5 Nano
+	vim.keymap.set("v", "<leader>ngn", function()
+		llm.prompt_selection_only_append({
+			service = "openai",
+			system_prompt = prompts.note_system_prompt,
+			temperature = 0.75,
+			verbosity = "low",
+			reasoning_effort = "medium",
+		})
+	end, { desc = "GPT-5.4 Nano $0.20/$1.25" })
 
 	-- Gemma
 	vim.keymap.set("v", "<leader>ne", function()
@@ -154,7 +113,8 @@ function M.setup(llm, prompts)
 			system_prompt = prompts.note_system_prompt,
 			temperature = 0.75,
 		})
-	end, { desc = "Gemma3n 12B" })
+		-- end, { desc = "Gemma 4 (26B A4B) $0.13/$0.40" })
+	end, { desc = "Gemma 4 31B $0.14/$0.40" })
 
 	-- Deepseek
 	vim.keymap.set("v", "<leader>nd", function()
@@ -172,9 +132,7 @@ function M.setup(llm, prompts)
 			system_prompt = prompts.note_system_prompt,
 			temperature = 0.75,
 		})
-	end, { desc = "Llama 3.2 3B = Free" })
-	-- end, { desc = "Llama 3.1 8B = $0.02/$0.05" })
-	-- end, { desc = "Llama 3.2 11B = $0.05/$0.05" })
+	end, { desc = "Llama 3.1 8B $0.02/$0.05" })
 
 	-- Tiny Qwen
 	vim.keymap.set("v", "<leader>tqw", function()
@@ -183,7 +141,7 @@ function M.setup(llm, prompts)
 			system_prompt = prompts.note_system_prompt,
 			temperature = 0.75,
 		})
-	end, { desc = "Qwen3 4B = Free" })
+	end, { desc = "Qwen3.5 9B $0.05/$0.15" })
 
 	-- Ministral
 	vim.keymap.set("v", "<leader>tmi", function()
@@ -192,7 +150,7 @@ function M.setup(llm, prompts)
 			system_prompt = prompts.note_system_prompt,
 			temperature = 0.75,
 		})
-	end, { desc = "Ministral 14B = Free" })
+	end, { desc = "Ministral 3B $0.10/$0.10" })
 
 	-- Nemostral
 	vim.keymap.set("v", "<leader>tnm", function()
@@ -201,7 +159,7 @@ function M.setup(llm, prompts)
 			system_prompt = prompts.note_system_prompt,
 			temperature = 0.75,
 		})
-	end, { desc = "Mistral Nemo = Free" })
+	end, { desc = "Mistral Nemo 12B $0.02/$0.04" })
 
 	-- Devstral
 	vim.keymap.set("v", "<leader>tdv", function()
@@ -221,23 +179,32 @@ function M.setup(llm, prompts)
 		})
 	end, { desc = "Codestral 22B" })
 
-	-- Nemotron Nano
-	vim.keymap.set("v", "<leader>nmn", function()
+	-- StepFun Step 3.5
+	vim.keymap.set("v", "<leader>nsf", function()
 		llm.prompt_selection_only_append({
-			service = "nemotron",
+			service = "step_fun",
 			system_prompt = prompts.note_system_prompt,
 			temperature = 0.75,
 		})
-	end, { desc = "Nemotron Nano A3B 30B" })
+	end, { desc = "Step 3.5 Flash (196B A11B) $0.10/$0.30" })
 
-	-- Olmo
-	vim.keymap.set("v", "<leader>nmo", function()
+	-- Mimo V2 Flash
+	vim.keymap.set("v", "<leader>nme", function()
 		llm.prompt_selection_only_append({
-			service = "olmo",
+			service = "mimo",
 			system_prompt = prompts.note_system_prompt,
 			temperature = 0.75,
 		})
-	end, { desc = "Olmo 3.1 32B Instruct $0.15/$0.50" })
+	end, { desc = "Mimo V2 Flash (309B A15B) $0.09/$0.29" })
+
+	-- Minimax
+	vim.keymap.set("v", "<leader>nmi", function()
+		llm.prompt_selection_only_append({
+			service = "minimax",
+			system_prompt = prompts.note_system_prompt,
+			temperature = 0.75,
+		})
+	end, { desc = "Minimax M2.7 $0.30/$1.20" })
 
 	-- Mistral
 	vim.keymap.set("v", "<leader>nms", function()
@@ -246,7 +213,7 @@ function M.setup(llm, prompts)
 			system_prompt = prompts.note_system_prompt,
 			temperature = 0.75,
 		})
-	end, { desc = "Mistral Medium = Free" })
+	end, { desc = "Mistral Small 4 $0.15/$0.60" })
 
 	-- Nemotron
 	vim.keymap.set("v", "<leader>nu", function()
@@ -256,19 +223,16 @@ function M.setup(llm, prompts)
 			system_prompt = prompts.note_system_prompt,
 			temperature = 0,
 		})
-	end, { desc = "Nemotron 3 Super" })
+	end, { desc = "Nemotron Ultra 235B" })
 
 	-- Cerebras
 	vim.keymap.set("v", "<leader>nc", function()
 		llm.prompt_selection_only_append({
 			service = "cerebras",
-			-- system_prompt = prompts.note_system_prompt,
-			system_prompt = prompts.oreilly_prompt,
+			system_prompt = prompts.note_system_prompt,
 			temperature = 0.75,
 		})
-		-- end, { desc = "GLM 4.7 (Cerebras) = $2.25/$2.75" })
-		-- end, { desc = "Cerebras (Qwen3-32B) = $0.40/$0.80" })
-	end, { desc = "Cerebras (OSS-120B) = $0.35/$0.75" })
+	end, { desc = "Cerebras (OSS 120B)" })
 
 	-- Groq Qwen
 	vim.keymap.set("v", "<leader>nq", function()
@@ -277,8 +241,7 @@ function M.setup(llm, prompts)
 			system_prompt = prompts.note_system_prompt,
 			temperature = 0.75,
 		})
-		-- end, { desc = "Groq (Qwen3-32B) = $0.29/$0.59" })
-	end, { desc = "Groq (OSS-120B) = $0.15/$0.60" })
+	end, { desc = "Groq (Qwen3-32B)" })
 
 	-- Z AI
 	vim.keymap.set("v", "<leader>nz", function()
@@ -287,7 +250,7 @@ function M.setup(llm, prompts)
 			system_prompt = prompts.note_system_prompt,
 			temperature = 0.75,
 		})
-	end, { desc = "Z AI (GLM 5 $1.00/$3.20)" })
+	end, { desc = "Z AI (GLM-5) $0.72/$2.30" })
 
 	-- Replace with Mistral
 	vim.keymap.set("v", "<leader>nr", function()
@@ -297,7 +260,7 @@ function M.setup(llm, prompts)
 			system_prompt = prompts.note_system_prompt,
 			temperature = 0.5,
 		})
-	end, { desc = "Replace selection with Mistral Medium" })
+	end, { desc = "Replace selection with Mistral Small" })
 
 	-- Code Append
 	vim.keymap.set("v", "<leader>ct", function()
@@ -307,7 +270,7 @@ function M.setup(llm, prompts)
 			temperature = 0.1,
 			comment_syntax = get_comment_syntax(),
 		})
-	end, { desc = "Codestral = Free" })
+	end, { desc = "Codestral" })
 
 	-- Code Replace
 	vim.keymap.set("v", "<leader>cr", function()
@@ -323,8 +286,7 @@ function M.setup(llm, prompts)
 	-- Title/Spiel
 	vim.keymap.set("v", "<leader>mt", function()
 		llm.prompt_selection_only_append({
-			-- service = "flash_lite",
-			service = "mistral",
+			service = "flash_lite",
 			system_prompt = prompts.title_spiel_prompt,
 			temperature = 0.6,
 		})
@@ -342,7 +304,7 @@ function M.setup(llm, prompts)
 	-- YouTube Summary
 	vim.keymap.set("v", "<leader>mys", function()
 		llm.prompt_selection_only_append({
-			service = "r1",
+			service = "grok",
 			system_prompt = prompts.youtube_clean_transcript_summary_generator_prompt,
 			temperature = 0.6,
 		})
@@ -376,7 +338,7 @@ function M.setup(llm, prompts)
 			system_prompt = prompts.clean_scraped_markdown_prompt,
 			temperature = 0.6,
 		})
-	end, { desc = "Clean Scraped Markdown Content w/ GPT 5 Mini" })
+	end, { desc = "Clean Scraped Markdown Content w/ GPT 5.4 Nano" })
 
 	-- Clean Output (Grok)
 	vim.keymap.set("v", "<leader>mck", function()
@@ -386,7 +348,7 @@ function M.setup(llm, prompts)
 			system_prompt = prompts.clean_markdown_prompt,
 			temperature = 0.6,
 		})
-	end, { desc = "Clean LLM Output Markdown for Readability w/ Grok 4" })
+	end, { desc = "Clean LLM Output Markdown for Readability w/ Grok" })
 
 	-- Clean Output (OpenAI)
 	vim.keymap.set("v", "<leader>mco", function()
@@ -396,7 +358,7 @@ function M.setup(llm, prompts)
 			system_prompt = prompts.clean_markdown_prompt,
 			temperature = 0.6,
 		})
-	end, { desc = "Clean LLM Output Markdown for Readability w/ GPT 5 Mini" })
+	end, { desc = "Clean LLM Output Markdown for Readability w/ GPT 5.4 Nano" })
 
 	-- Clean Output (Grok - duplicate keybind in original, kept intentionally)
 	vim.keymap.set("v", "<leader>mcg", function()
@@ -406,7 +368,7 @@ function M.setup(llm, prompts)
 			system_prompt = prompts.clean_markdown_prompt,
 			temperature = 0.6,
 		})
-	end, { desc = "Clean LLM Output Markdown for Readability w/ Grok 4" })
+	end, { desc = "Clean LLM Output Markdown for Readability w/ Grok" })
 
 	-- Clean Output (Flash)
 	vim.keymap.set("v", "<leader>mcf", function()
@@ -422,7 +384,7 @@ function M.setup(llm, prompts)
 	vim.keymap.set("v", "<leader>mcc", function()
 		llm.prompt_selection_only({
 			replace = true,
-			service = "flash_lite",
+			service = "gemini",
 			system_prompt = prompts.course_generator_prompt,
 			temperature = 0.6,
 		})
@@ -431,8 +393,7 @@ function M.setup(llm, prompts)
 	-- Bullet Points
 	vim.keymap.set("v", "<leader>mgb", function()
 		llm.prompt_selection_only_append({
-			-- service = "ministral",
-			service = "flash_lite",
+			service = "ministral",
 			system_prompt = prompts.note_system_prompt .. [[
                 Can you split the following text into a markdown bullet list
             ]],
@@ -444,36 +405,45 @@ function M.setup(llm, prompts)
 	vim.keymap.set("v", "<leader>mgs", function()
 		llm.prompt_selection_only_append({
 			service = "flash_lite",
-			system_prompt = prompts.note_system_prompt .. [[
+			-- system_prompt = prompts.note_system_prompt .. [[
+			system_prompt = [[
+
                 Please provide a easy and quick to read
                 subtitle (as if glancing through a large amount of
                 paragraphs) that captures the main idea and
-                is eye catching for the only following paragraph
+                is eye catching. for the provided text
 
                 Only provide the subtitle and not the paragraph
                 Don't regenerate the paragraph
-            ]],
-			temperature = 0.5,
+
+                Format the response in best practice markdown syntax.
+                So a title in markdown like `### Title` already is rendered
+                with bold text and larger based on rendering themes.
+
+                So, it doesn't require `### **Title**` syntax.
+
+                ]],
+			temperature = 0.1,
 		})
 	end, { desc = "Generate a subtitle for Paragraph" })
 
 	-- Explain It To me
-	vim.keymap.set("v", "<leader>mei", function()
+	vim.keymap.set("v", "<leader>mea", function()
 		llm.prompt_selection_only_append({
-			service = "mimo",
+			service = "anthropic",
 			system_prompt = prompts.lets_rock_peter,
 			temperature = 0.50,
 		})
 	end, { desc = "Explain It Peter!" })
 
 	-- Explain It To me
-	vim.keymap.set("v", "<leader>mem", function()
+	vim.keymap.set("v", "<leader>men", function()
 		llm.prompt_selection_only_append({
-			service = "minimax",
+			service = "openai",
 			system_prompt = prompts.lets_rock_peter,
 			temperature = 0.50,
 		})
-	end, { desc = "Explain It Peter Minimax!" })
+	end, { desc = "Explain It Peter GPT-5.4 Nano!" })
 
 	-- Explain It To me
 	vim.keymap.set("v", "<leader>mek", function()
@@ -491,7 +461,7 @@ function M.setup(llm, prompts)
 			system_prompt = prompts.lets_rock_peter,
 			temperature = 0.50,
 		})
-	end, { desc = "Explain It Peter GPT-5!" })
+	end, { desc = "Explain It Peter GPT-5.4!" })
 
 	-- Explain It To me
 	vim.keymap.set("v", "<leader>mec", function()
@@ -509,28 +479,28 @@ function M.setup(llm, prompts)
 			system_prompt = prompts.lets_rock_peter,
 			temperature = 0.50,
 		})
-	end, { desc = "Explain It Peter Qwen3 A3B 30B" })
+	end, { desc = "Explain It Peter Qwen3.5 Flash" })
 
 	-- Explain It To me
-	vim.keymap.set("v", "<leader>meo", function()
+	vim.keymap.set("v", "<leader>met", function()
 		llm.prompt_selection_only_append({
 			service = "openrouter",
 			system_prompt = prompts.lets_rock_peter,
 			temperature = 0.50,
 		})
-	end, { desc = "Explain It Peter OpenRouter" })
+	end, { desc = "Explain It Peter Trinity Large" })
 
 	-- Explain It To me
-	vim.keymap.set("v", "<leader>mer", function()
+	vim.keymap.set("v", "<leader>mem", function()
 		llm.prompt_selection_only_append({
 			service = "mistral",
 			system_prompt = prompts.lets_rock_peter,
 			temperature = 0.50,
 		})
-	end, { desc = "Explain It Peter Mistral" })
+	end, { desc = "Explain It Peter Mistral Small 4" })
 
 	-- Explain It To me
-	vim.keymap.set("v", "<leader>met", function()
+	vim.keymap.set("v", "<leader>mel", function()
 		llm.prompt_selection_only_append({
 			service = "tiny_llama",
 			system_prompt = prompts.lets_rock_peter,
@@ -546,15 +516,6 @@ function M.setup(llm, prompts)
 			temperature = 0.50,
 		})
 	end, { desc = "Explain It Peter Gemini Flash Lite" })
-
-	-- Explain It To me
-	vim.keymap.set("v", "<leader>med", function()
-		llm.prompt_selection_only_append({
-			service = "deepseek",
-			system_prompt = prompts.lets_rock_peter,
-			temperature = 0.50,
-		})
-	end, { desc = "Explain It Peter Deepseek" })
 end
 
 return M
