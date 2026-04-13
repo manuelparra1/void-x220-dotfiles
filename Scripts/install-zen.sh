@@ -38,12 +38,11 @@ ok()   { echo "✓ $*"; }
 # We follow that redirect silently and extract the version from the final URL.
 info "Resolving latest version..."
 
-RESOLVED_URL=$(curl -fsSI \
-  -o /dev/null \
-  -w "%{redirect_url}" \
+RESOLVED_URL=$(curl -fsSL \
   -A "Mozilla/5.0 (X11; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0" \
+  -w "%{url_effective}" \
+  -o /dev/null \
   "$DOWNLOAD_URL")
-
 
 # URL looks like: .../releases/download/1.8.1b/zen.linux-x86_64.tar.xz
 LATEST_VERSION=$(echo "$RESOLVED_URL" \
