@@ -1,0 +1,13 @@
+??> Where in this is the "streamed output for messages send to buffer with a new line after the "??>"? I need to ensure a blank line between the user prompt and the response. Does it change depending on api type or service?
+
+## Response
+
+lines before the response content. The `state.line` gets decremented when the first chunk arrives to account for this positioning.
+In `prompt_selection_only`, the thinking indicator is initialized at `selection_end_row` with the message "Thinking...", and `sse_state.line` is set to the row below it. When streaming begins, `state.line - 1` clears the thinking placeholder, then `state.line` decrements so subsequent content overwrites it starting at `selection_end_row + 1`.
+
+The actual buffer updates happen in `process_sse_response` through `vim.api.nvim_buf_set_lines`, which handles all the line manipulation for incoming streamed content.
+
+The formatting logic uses paragraph boundaries (`\n\n`) to split content, meaning responses naturally get blank lines between them. This applies uniformly across different API types since the SSE parsing branches don't affect the actual buffer writing—they only determine what content gets formatted and appended. The `comment_syntax` and thinking block formatting stay consistent regardless of whether it's OpenAI, Anthropic, or another provider. I need to trace where the `?>` gets written to the buffer and how newlines are handled. The `parse_buffer_chat` function processes the buffer using `get_chat_prefix(ft, c_syntax)`, which determines the prefix. Looking at how `vim.api.nvim_buf_set_lines` appends content after the thinking state, it writes paragraphs split by `\n\n` delimiters. The key is identifying which function controls this boundary insertion and whether it's tied to the api_type branching logic. The `vim.split(combined, "\n\n", { plain = true })` call splits content into paragraphs based on double newlines, and each paragraph gets written as a separate line. The first chunk clears the "Thinking..." placeholder, then subsequent chunks append the actual paragraph splitting (`vim.split(combined, "\n\n", { plain = true })`) that adds blank lines between content blocks is applied uniformly in section 2 of that same function, before writing.
+
+This formatting logic is **not branched by api_type**—the `if/elseif/else` for `api_type` only affects what raw content is extracted from the SSE stream in section 1. Once `raw_content` is determined, the same formatting rules apply.
+For the thinking-to-response transition specifically, this line ensures the blank regardless of whether you're using `responses`, `anthropic`, or standard chat completions.

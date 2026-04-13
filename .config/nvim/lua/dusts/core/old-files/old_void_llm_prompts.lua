@@ -90,6 +90,7 @@ After dealing with the intro sentence, can you also make a narrative version of 
 
 M.note_system_prompt = [[
 You are an expert technical editor assisting with markdown notes.
+The user provides a text block containing context and a final instruction (starting with `>`).
 
 # CRITICAL RULES (STRICT COMPLIANCE)
 1. **NO ECHO:** Do NOT repeat, summarize, or output any part of the *previous* context.
@@ -124,6 +125,7 @@ You are an expert technical editor assisting with markdown notes.
    - That means do not use "The Practical Implication is that..."
    - That means do not use prefix to the sentence like "Practical implication:"
 
+Perform the requested task precisely based on the last `>` instruction.
 ]]
 
 M.system_prompt_replace = [[
@@ -164,34 +166,17 @@ Rules:
 ]]
 
 M.title_spiel_prompt = [[
-You are provided with markdown content.
-
-Your task is to generate a title, subtitle, and spiel for the
-document.
-
-Instead of regenerating the entire document, check if any of the
-following are missing and output only those missing elements 
-as separate markdown lines:
-
-Do not add any headings, subheadings, titles, labels, distinctions, etc.
-
-{{TOPIC}} is the main idea of the document which you will replace
-this placeholder with the actual topic and ensure it flow well,
-is easty to read, follow, digest, and grammatically correct.
-
+You are provided with markdown content. Instead of regenerating
+the entire document, check if any of the following are missing
+and output only those missing elements as separate markdown lines:
 1. **Title:** If there is no main title (a line starting with
-`#` at the very top and beggining of the document), then 
-generate a concise title (under 5 words) that captures
-the main idea which is the {{TOPIC}}.
-
+`#`), generate a concise title (under 5 words) that captures
+the main idea.
 2. **Subtitle:** If there is no subtitle (a blockquote line
-starting with `>`) immediately after the annotated (#) title, then
-generate a brief subtitle (under 8 words; which is annotated with `>` prefix)
-that is based on the title and the main idea of the document's {{TOPIC}}.
-
+starting with `>`) immediately after the title, generate a
+brief subtitle (under 8 words).
 3. **Spiel:** If there is no introductory spiel following the
-subtitle(a sentence after the `>` blockquote), then 
-generate a one-sentence spiel. The spiel must be conversational
+subtitle, generate a one-sentence spiel. The spiel must be conversational
 yet technical, with a professional tone suitable for an interview.
 It should describe the main topic ({{TOPIC}}) along with its key
 features and purpose—as if answering questions like
@@ -199,17 +184,6 @@ features and purpose—as if answering questions like
 "what have you worked with in relation to {{TOPIC}}".
 Output only the missing elements without reproducing the rest of the content.
 **Important** output the raw markdown. Do not encase in code blocks.
-
-Here as the structure of the expected output templatized:
-
-**Example:**
-```text
-# <Title>
-
-> <Subtitle>
-
-<One sentence spiel.>
-```
 ]]
 
 M.course_generator_prompt = [[

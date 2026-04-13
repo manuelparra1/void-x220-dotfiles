@@ -41,8 +41,6 @@ local function parse_buffer_chat(visual_lines, user_prefix, comment_syntax)
 	local current_content = {}
 	local current_reasoning = {}
 	local is_thinking = false
-	local context_lines = {} -- NEW
-	local first_user_seen = false -- NEW
 
 	local comment_prefix = comment_syntax
 	if comment_prefix ~= "" then
@@ -64,17 +62,6 @@ local function parse_buffer_chat(visual_lines, user_prefix, comment_syntax)
 	for _, line in ipairs(visual_lines) do
 		local trimmed_line = vim.trim(line)
 		local is_user_line = vim.startswith(trimmed_line, user_prefix)
-
-		-- NEW: everything before the first ??> is context, not an assistant turn
-		if not first_user_seen then
-			if is_user_line then
-				first_user_seen = true
-				current_role = "user"
-			else
-				table.insert(context_lines, line)
-				goto continue
-			end
-		end
 
 		if is_user_line and current_role ~= "user" then
 			save_message()
@@ -103,17 +90,9 @@ local function parse_buffer_chat(visual_lines, user_prefix, comment_syntax)
 				table.insert(current_content, line)
 			end
 		end
-
-		::continue::
 	end
 
 	save_message()
-
-	-- NEW: prepend context lines to the first user message
-	if #context_lines > 0 and #messages > 0 and messages[1].role == "user" then
-		local context = table.concat(context_lines, "\n")
-		messages[1].content = vim.trim(context .. "\n" .. messages[1].content)
-	end
 
 	if #messages == 0 then
 		table.insert(messages, { role = "user", content = table.concat(visual_lines, "\n") })
@@ -122,46 +101,10 @@ local function parse_buffer_chat(visual_lines, user_prefix, comment_syntax)
 	return messages
 end
 
--- NEW: Convert parsed chat history to OpenAI Responses API input format
-local function history_to_responses_input(instructions, parsed_history)
-	local input = {
-		{
-			role = "developer",
-			content = {
-				{ type = "input_text", text = instructions },
-			},
-		},
-	}
-	for _, msg in ipairs(parsed_history) do
-		-- user messages use input_text, assistant messages use output_text
-		local content_type = msg.role == "assistant" and "output_text" or "input_text"
-		table.insert(input, {
-			role = msg.role,
-			content = {
-				{ type = content_type, text = msg.content },
-			},
-		})
-	end
-	return input
-end
-
-local function process_data_lines(line, process_data, state)
+local function process_data_lines(line, process_data)
 	local json = line:match("^data: (.+)$")
 	if json then
 		if json == "[DONE]" then
-			-- NEW: If the model finishes but never sent text, gracefully inform the user
-			if state and not state.first_chunk_received then
-				vim.schedule(function()
-					state.first_chunk_received = true
-					vim.api.nvim_buf_set_lines(
-						0,
-						state.line - 1,
-						state.line,
-						false,
-						{ "-- AI found no missing elements to generate." }
-					)
-				end)
-			end
 			return true
 		end
 		local ok, data = pcall(vim.json.decode, json)
@@ -175,8 +118,7 @@ local function process_data_lines(line, process_data, state)
 	return false
 end
 
--- CHANGED: second parameter is now api_type instead of service name
-local function process_sse_response(buffer, api_type, state)
+local function process_sse_response(buffer, service, state)
 	local comment_syntax = state.comment_syntax
 
 	for line in string.gmatch(buffer, "[^\r\n]+") do
@@ -184,17 +126,8 @@ local function process_sse_response(buffer, api_type, state)
 			local raw_content = ""
 			local is_reasoning_chunk = false
 
-			-- 1. Stream Parsing — branched by api_type
-			if api_type == "responses" then
-				-- NEW: OpenAI Responses API streaming format
-				if data.type == "response.output_text.delta" and type(data.delta) == "string" then
-					raw_content = data.delta
-				elseif data.type == "response.reasoning_summary_text.delta" and type(data.delta) == "string" then
-					raw_content = data.delta
-					is_reasoning_chunk = true
-				end
-			elseif api_type == "anthropic" then
-				-- UNCHANGED: Anthropic Messages API streaming format
+			-- 1. Stream Parsing with Strict Type Checking
+			if service == "anthropic" then
 				if data.type == "content_block_delta" and data.delta then
 					if data.delta.type == "text_delta" and type(data.delta.text) == "string" then
 						raw_content = data.delta.text
@@ -204,7 +137,6 @@ local function process_sse_response(buffer, api_type, state)
 					end
 				end
 			else
-				-- UNCHANGED: Standard chat completions (OpenRouter, Groq, Cerebras, Mistral, etc.)
 				if data.choices and data.choices[1] and data.choices[1].delta then
 					local delta = data.choices[1].delta
 
@@ -224,16 +156,16 @@ local function process_sse_response(buffer, api_type, state)
 				end
 			end
 
-			-- Safety guard
+			-- Safety guard: Abort if we didn't extract a valid string
 			if type(raw_content) ~= "string" or raw_content == "" then
 				return
 			end
 
-			-- 2. Buffer Formatting (UNCHANGED)
+			-- 2. Buffer Formatting
 			local formatted_content = ""
 			if not state.is_currently_thinking and is_reasoning_chunk then
 				state.is_currently_thinking = true
-				formatted_content = "\n\n"
+				formatted_content = "\n"
 					.. comment_syntax
 					.. "<think>\n"
 					.. comment_syntax
@@ -242,12 +174,12 @@ local function process_sse_response(buffer, api_type, state)
 				formatted_content = raw_content:gsub("\n", "\n" .. comment_syntax)
 			elseif state.is_currently_thinking and not is_reasoning_chunk then
 				state.is_currently_thinking = false
-				formatted_content = "\n\n" .. comment_syntax .. "</think>\n\n" .. raw_content
+				formatted_content = "\n" .. comment_syntax .. "</think>\n\n" .. raw_content
 			else
 				formatted_content = raw_content
 			end
 
-			-- 3. Write to Buffer (UNCHANGED)
+			-- 3. Write to Buffer
 			if not state.first_chunk_received then
 				state.first_chunk_received = true
 				vim.api.nvim_buf_set_lines(0, state.line - 1, state.line, false, {})
@@ -268,7 +200,7 @@ local function process_sse_response(buffer, api_type, state)
 				state.current_content = content_lines[1]
 			end
 			vim.api.nvim_win_set_cursor(0, { state.line + 1, #state.current_content })
-		end, state)
+		end)
 	end
 end
 
@@ -340,20 +272,10 @@ function M.setup(llm, services, prompts)
 			return
 		end
 
-		-- NEW: resolve api_type from service config
-		local api_type = found_service.api_type or "chat"
-
 		local ft = vim.api.nvim_get_option_value("filetype", { buf = 0 })
 		local c_syntax = get_comment_syntax(ft)
 		local u_prefix = get_chat_prefix(ft, c_syntax)
-
-		-- NEW: Check for bypass flag. If true, treat selection as one raw document.
-		local parsed_history
-		if opts.is_document_prompt then
-			parsed_history = { { role = "user", content = table.concat(visual_lines, "\n") } }
-		else
-			parsed_history = parse_buffer_chat(visual_lines, u_prefix, c_syntax)
-		end
+		local parsed_history = parse_buffer_chat(visual_lines, u_prefix, c_syntax)
 
 		local sse_state = {
 			first_chunk_received = false,
@@ -369,10 +291,8 @@ function M.setup(llm, services, prompts)
 		else
 			vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<Esc>", false, true, true), "nx", false)
 			vim.defer_fn(function()
-				-- CHANGED: Added an extra "" to the table so the cleanup script leaves one behind
-				vim.api.nvim_buf_set_lines(0, selection_end_row, selection_end_row, false, { "", "", "Thinking..." })
-				-- CHANGED: Shifted the state line down by 1 to account for the new line
-				sse_state.line = selection_end_row + 2
+				vim.api.nvim_buf_set_lines(0, selection_end_row, selection_end_row, false, { "", "Thinking..." })
+				sse_state.line = selection_end_row + 1
 				vim.api.nvim_win_set_cursor(0, { sse_state.line + 1, 0 })
 			end, 50)
 		end
@@ -384,37 +304,8 @@ function M.setup(llm, services, prompts)
 		local data = {}
 		local instructions = opts.system_prompt or prompts.note_system_prompt
 
-		-- =====================================================================
-		-- Build Payload — branched by api_type
-		-- =====================================================================
-		if api_type == "responses" then
-			-- NEW: OpenAI Responses API format
-			data = {
-				model = model,
-				stream = true,
-				store = false,
-				input = history_to_responses_input(instructions, parsed_history),
-				text = {
-					format = { type = "text" },
-				},
-			}
-			if opts.verbosity then
-				data.text.verbosity = opts.verbosity
-			end
-			if opts.reasoning_effort then
-				data.reasoning = {
-					effort = opts.reasoning_effort,
-					summary = "auto",
-				}
-			end
-			if opts.temperature then
-				data.temperature = opts.temperature
-			end
-			if opts.max_tokens then
-				data.max_output_tokens = opts.max_tokens
-			end
-		elseif api_type == "anthropic" then
-			-- UNCHANGED
+		-- Build Payload
+		if service == "anthropic" then
 			data = {
 				model = model,
 				system = instructions,
@@ -425,12 +316,25 @@ function M.setup(llm, services, prompts)
 			if opts.reasoning == "true" or opts.reasoning_effort then
 				data.thinking = { type = "enabled", budget_tokens = 4096 }
 			end
-		elseif
-			service == "mistral"
-			or service == "ministral"
-			or service == "nemostral"
-			or service == "cerebras" -- ADDED: Cerebras uses top-level reasoning_effort like Mistral
-		then
+		elseif service == "gpt_5" or service == "openai" then
+			data = {
+				model = model,
+				stream = true,
+				response_format = { type = "text" },
+				messages = {
+					{ role = "developer", content = { { type = "text", text = instructions } } },
+					{ role = "user", content = { { type = "text", text = prompt_text } } },
+				},
+			}
+
+			-- Only append these if they are passed in via the keymap opts
+			if opts.verbosity then
+				data.verbosity = opts.verbosity
+			end
+			if opts.reasoning_effort then
+				data.reasoning_effort = opts.reasoning_effort
+			end
+		elseif service == "mistral" or service == "ministral" or service == "nemostral" then
 			data = {
 				model = model,
 				stream = true,
@@ -446,7 +350,6 @@ function M.setup(llm, services, prompts)
 				data.reasoning_effort = opts.reasoning_effort or "high"
 			end
 		else
-			-- Generic chat completions (OpenRouter, Groq, DeepSeek, Grok, Ollama, etc.)
 			data = {
 				model = model,
 				stream = true,
@@ -458,23 +361,24 @@ function M.setup(llm, services, prompts)
 				table.insert(data.messages, msg)
 			end
 
+			-- The Unified OpenRouter Reasoning Router
 			if opts.reasoning_tokens then
+				-- Explicit token budget (Great for Tiny models)
 				data.reasoning = { max_tokens = opts.reasoning_tokens }
 			elseif opts.reasoning_effort then
+				-- Explicit effort level (Great for OpenAI/Gemini)
 				data.reasoning = { effort = opts.reasoning_effort }
 			elseif opts.reasoning == "true" then
+				-- The "Just turn it on and figure it out" fallback
 				data.reasoning = { enabled = true }
 			elseif opts.thinking == "off" then
+				-- Force it to hide thoughts
 				data.reasoning = { exclude = true }
 			end
 		end
 
-		-- =====================================================================
-		-- Build curl args
-		-- =====================================================================
 		local args = {
 			"-N",
-			"-X",
 			"POST",
 			"-H",
 			"Content-Type: application/json",
@@ -490,8 +394,7 @@ function M.setup(llm, services, prompts)
 				end
 			end
 
-			-- CHANGED: check api_type instead of service name
-			if api_type == "anthropic" then
+			if service == "anthropic" then
 				table.insert(args, "-H")
 				table.insert(args, "x-api-key: " .. api_key)
 				table.insert(args, "-H")
@@ -509,31 +412,12 @@ function M.setup(llm, services, prompts)
 			args = args,
 			on_stdout = function(_, out)
 				if out and out ~= "" then
-					-- CHANGED: pass api_type instead of service name
-					process_sse_response(out, api_type, sse_state)
+					process_sse_response(out, service, sse_state)
 				end
 			end,
-
-			on_exit = function(j, return_val)
+			on_exit = function()
 				vim.schedule(function()
 					if not sse_state.first_chunk_received then
-						-- Grab standard output; if it's an API error, it will be raw JSON here.
-						local raw_output = table.concat(j:result(), "\n")
-						local err_msg = "Error receiving response."
-
-						-- Attempt to parse OpenRouter/API JSON errors
-						if raw_output ~= "" then
-							local ok, parsed = pcall(vim.json.decode, raw_output)
-							if ok and parsed and parsed.error then
-								err_msg = "API Error: " .. (parsed.error.message or vim.inspect(parsed.error))
-							else
-								err_msg = "API Error:\n" .. raw_output
-							end
-						end
-
-						-- FIX: Split the error message into a table of strings without \n
-						local err_lines = vim.split(err_msg, "\n", { plain = true })
-
 						local line_content = vim.api.nvim_buf_get_lines(0, sse_state.line, sse_state.line + 1, false)[1]
 						if line_content and line_content:match("Thinking%.%.%.") then
 							vim.api.nvim_buf_set_lines(
@@ -541,7 +425,7 @@ function M.setup(llm, services, prompts)
 								sse_state.line,
 								sse_state.line + 1,
 								false,
-								err_lines -- Pass the safe table here
+								{ "Error receiving response." }
 							)
 						end
 					end

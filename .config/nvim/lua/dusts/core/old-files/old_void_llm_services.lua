@@ -2,41 +2,24 @@
 -- llm.nvim Plugin LLM Service Configuration
 -- ===========================================================================
 return {
-	openrouter = {
-		url = "https://openrouter.ai/api/v1/chat/completions",
-		-- model = "arcee-ai/trinity-large-thinking",
-		-- model = "meta-llama/llama-3.1-8b-instruct",
-		-- ($0.02/$0.05)
-		model = "mistralai/mistral-nemo",
-		-- ($0.02/$0.04)
-		api_key_name = "OPENROUTER_API_KEY",
-	},
-	anthropic = {
-		url = "https://api.anthropic.com/v1/messages", -- FIXED: was /v1/chat/completions (doesn't exist)
-		model = "claude-opus-4-6",
-		api_key_name = "ANTHROPIC_API_KEY",
-		api_type = "anthropic", -- NEW
-	},
 	gpt_5 = {
-		url = "https://api.openai.com/v1/responses", -- FIXED: was /v1/chat/completions
+		url = "https://api.openai.com/v1/chat/completions",
 		model = "gpt-5.4",
 		api_key_name = "OPENAI_API_KEY",
-		api_type = "responses", -- NEW
 	},
-	openai = {
-		url = "https://api.openai.com/v1/responses", -- FIXED: was /v1/chat/completions
-		model = "gpt-5.4-nano",
-		api_key_name = "OPENAI_API_KEY",
-		api_type = "responses", -- NEW
+	anthropic = {
+		url = "https://api.anthropic.com/v1/chat/completions",
+		model = "claude-opus-4-6",
+		api_key_name = "ANTHROPIC_API_KEY",
 	},
 	grok = {
 		url = "https://api.x.ai/v1/chat/completions",
 		model = "grok-4-1-fast-non-reasoning",
 		api_key_name = "GROK_API_KEY",
 	},
-	gemini = {
+	openrouter = {
 		url = "https://openrouter.ai/api/v1/chat/completions",
-		model = "google/gemini-3.1-pro-preview",
+		model = "arcee-ai/trinity-large-preview:free",
 		api_key_name = "OPENROUTER_API_KEY",
 	},
 	flash_lite = {
@@ -49,79 +32,64 @@ return {
 		model = "google/gemini-3-flash-preview",
 		api_key_name = "OPENROUTER_API_KEY",
 	},
-	mimo = {
+	gemini = {
 		url = "https://openrouter.ai/api/v1/chat/completions",
-		model = "xiaomi/mimo-v2-flash",
+		model = "google/gemini-3.1-pro-preview",
 		api_key_name = "OPENROUTER_API_KEY",
 	},
-	mimo_pro = {
-		url = "https://openrouter.ai/api/v1/chat/completions",
-		model = "xiaomi/mimo-v2-pro",
-		api_key_name = "OPENROUTER_API_KEY",
+	cerebras = {
+		url = "https://api.cerebras.ai/v1/chat/completions",
+		model = "gpt-oss-120b",
+		api_key_name = "CEREBRAS_API_KEY",
 	},
-	stepfun = {
-		url = "https://openrouter.ai/api/v1/chat/completions",
-		model = "stepfun/step-3.5-flash:free",
-		api_key_name = "OPENROUTER_API_KEY",
+	groq = {
+		url = "https://api.groq.com/openai/v1/chat/completions",
+		-- ($0.29/$0.59)
+		model = "qwen/qwen3-32b",
+		api_key_name = "GROQ_API_KEY",
 	},
 	qwen3 = {
 		url = "https://openrouter.ai/api/v1/chat/completions",
 		model = "qwen/qwen3.5-flash-02-23",
 		api_key_name = "OPENROUTER_API_KEY",
 	},
-	olmo = {
+	oss = {
 		url = "https://openrouter.ai/api/v1/chat/completions",
-		model = "allenai/olmo-3.1-32b-think",
+		model = "openai/gpt-oss-120b",
 		api_key_name = "OPENROUTER_API_KEY",
 	},
-	cerebras = {
-		url = "https://api.cerebras.ai/v1/chat/completions",
-		-- model = "llama3.1-8b",
-		model = "qwen-3-235b-a22b-instruct-2507",
-		api_key_name = "CEREBRAS_API_KEY",
+	openai = {
+		url = "https://api.openai.com/v1/chat/completions",
+		model = "gpt-5.4-nano",
+		api_key_name = "OPENAI_API_KEY",
 	},
-	groq = {
-		url = "https://api.groq.com/openai/v1/chat/completions",
-		model = "openai/gpt-oss-120b",
-		api_key_name = "GROQ_API_KEY",
+	tiny_qwen3 = {
+		url = "https://openrouter.ai/api/v1/chat/completions",
+		-- ($0.05/$0.15)
+		model = "qwen/qwen3.5-9b",
+		api_key_name = "OPENROUTER_API_KEY",
 	},
 	z_ai = {
 		url = "https://api.z.ai/api/paas/v4/chat/completions",
 		model = "glm-5",
 		api_key_name = "Z_API_KEY",
 	},
-	kimi_k2 = {
+	r1 = {
 		url = "https://openrouter.ai/api/v1/chat/completions",
-		model = "moonshotai/kimi-k2.5",
-		api_key_name = "OPENROUTER_API_KEY",
-	},
-	minimax = {
-		url = "https://openrouter.ai/api/v1/chat/completions",
-		model = "minimax/minimax-m2.7",
-		api_key_name = "OPENROUTER_API_KEY",
-	},
-	oss = {
-		url = "https://openrouter.ai/api/v1/chat/completions",
-		model = "openai/gpt-oss-20b",
-		api_key_name = "OPENROUTER_API_KEY",
-	},
-	tiny_qwen3 = {
-		url = "https://openrouter.ai/api/v1/chat/completions",
-		model = "qwen/qwen3.5-9b",
+		model = "deepseek/deepseek-r1-0528-qwen3-8b",
 		api_key_name = "OPENROUTER_API_KEY",
 	},
 	tiny_llama = {
 		url = "https://openrouter.ai/api/v1/chat/completions",
-		model = "meta-llama/llama-3.2-3b-instruct:free",
-		api_key_name = "OPENROUTER_API_KEY",
-	},
-	deepcoder = {
-		url = "https://openrouter.ai/api/v1/chat/completions",
-		model = "agentica-org/deepcoder-14b-preview:free",
+		-- ($0.02/$0.05)
+		model = "meta-llama/llama-3.1-8b-instruct",
 		api_key_name = "OPENROUTER_API_KEY",
 	},
 	gemma = {
 		url = "https://openrouter.ai/api/v1/chat/completions",
+		-- ($0.13/$0.40)
+		-- model = "google/gemma-4-26b-a4b-it",
+		-- ($0.14/$0.40)
 		model = "google/gemma-4-31b-it",
 		api_key_name = "OPENROUTER_API_KEY",
 	},
@@ -130,14 +98,37 @@ return {
 		model = "mistral-small-latest",
 		api_key_name = "MISTRAL_API_KEY",
 	},
+	olmo = {
+		url = "https://openrouter.ai/api/v1/chat/completions",
+		model = "allenai/olmo-3.1-32b-instruct",
+		api_key_name = "OPENROUTER_API_KEY",
+	},
+	stepfun = {
+		url = "https://openrouter.ai/api/v1/chat/completions",
+		-- cost = $0.10/$0.30
+		-- model = "stepfun/step-3.5-flash",
+		model = "stepfun/step-3.5-flash:free",
+		api_key_name = "OPENROUTER_API_KEY",
+	},
+	mimo = {
+		url = "https://openrouter.ai/api/v1/chat/completions",
+		-- cost = $0.09/$0.29
+		model = "xiaomi/mimo-v2-flash",
+		api_key_name = "OPENROUTER_API_KEY",
+	},
+	minimax = {
+		url = "https://openrouter.ai/api/v1/chat/completions",
+		model = "minimax/minimax-m2.7",
+		api_key_name = "OPENROUTER_API_KEY",
+	},
 	ministral = {
 		url = "https://api.mistral.ai/v1/chat/completions",
-		model = "ministral-14b-latest",
-		api_key_name = "MISTRAL_API_KEY",
-	},
-	nemostral = {
-		url = "https://api.mistral.ai/v1/chat/completions",
-		model = "open-mistral-nemo",
+		-- ($0.10/$0.10)
+		model = "ministral-3b-latest",
+		-- ($0.20/$0.20)
+		-- model = "ministral-8b-latest",
+		-- ($0.30/$0.30)
+		-- model = "ministral-14b-latest",
 		api_key_name = "MISTRAL_API_KEY",
 	},
 	devstral = {
@@ -149,6 +140,11 @@ return {
 		url = "https://codestral.mistral.ai/v1/chat/completions",
 		model = "codestral-latest",
 		api_key_name = "CODESTRAL_API_KEY",
+	},
+	nemostral = {
+		url = "https://api.mistral.ai/v1/chat/completions",
+		model = "open-mistral-nemo",
+		api_key_name = "MISTRAL_API_KEY",
 	},
 	nemotron = {
 		url = "https://openrouter.ai/api/v1/chat/completions",

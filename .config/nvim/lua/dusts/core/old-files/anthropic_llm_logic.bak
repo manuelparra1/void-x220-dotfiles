@@ -145,23 +145,10 @@ local function history_to_responses_input(instructions, parsed_history)
 	return input
 end
 
-local function process_data_lines(line, process_data, state)
+local function process_data_lines(line, process_data)
 	local json = line:match("^data: (.+)$")
 	if json then
 		if json == "[DONE]" then
-			-- NEW: If the model finishes but never sent text, gracefully inform the user
-			if state and not state.first_chunk_received then
-				vim.schedule(function()
-					state.first_chunk_received = true
-					vim.api.nvim_buf_set_lines(
-						0,
-						state.line - 1,
-						state.line,
-						false,
-						{ "-- AI found no missing elements to generate." }
-					)
-				end)
-			end
 			return true
 		end
 		local ok, data = pcall(vim.json.decode, json)
@@ -268,7 +255,7 @@ local function process_sse_response(buffer, api_type, state)
 				state.current_content = content_lines[1]
 			end
 			vim.api.nvim_win_set_cursor(0, { state.line + 1, #state.current_content })
-		end, state)
+		end)
 	end
 end
 
@@ -346,14 +333,7 @@ function M.setup(llm, services, prompts)
 		local ft = vim.api.nvim_get_option_value("filetype", { buf = 0 })
 		local c_syntax = get_comment_syntax(ft)
 		local u_prefix = get_chat_prefix(ft, c_syntax)
-
-		-- NEW: Check for bypass flag. If true, treat selection as one raw document.
-		local parsed_history
-		if opts.is_document_prompt then
-			parsed_history = { { role = "user", content = table.concat(visual_lines, "\n") } }
-		else
-			parsed_history = parse_buffer_chat(visual_lines, u_prefix, c_syntax)
-		end
+		local parsed_history = parse_buffer_chat(visual_lines, u_prefix, c_syntax)
 
 		local sse_state = {
 			first_chunk_received = false,
@@ -369,10 +349,8 @@ function M.setup(llm, services, prompts)
 		else
 			vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<Esc>", false, true, true), "nx", false)
 			vim.defer_fn(function()
-				-- CHANGED: Added an extra "" to the table so the cleanup script leaves one behind
-				vim.api.nvim_buf_set_lines(0, selection_end_row, selection_end_row, false, { "", "", "Thinking..." })
-				-- CHANGED: Shifted the state line down by 1 to account for the new line
-				sse_state.line = selection_end_row + 2
+				vim.api.nvim_buf_set_lines(0, selection_end_row, selection_end_row, false, { "", "Thinking..." })
+				sse_state.line = selection_end_row + 1
 				vim.api.nvim_win_set_cursor(0, { sse_state.line + 1, 0 })
 			end, 50)
 		end
@@ -513,27 +491,9 @@ function M.setup(llm, services, prompts)
 					process_sse_response(out, api_type, sse_state)
 				end
 			end,
-
-			on_exit = function(j, return_val)
+			on_exit = function()
 				vim.schedule(function()
 					if not sse_state.first_chunk_received then
-						-- Grab standard output; if it's an API error, it will be raw JSON here.
-						local raw_output = table.concat(j:result(), "\n")
-						local err_msg = "Error receiving response."
-
-						-- Attempt to parse OpenRouter/API JSON errors
-						if raw_output ~= "" then
-							local ok, parsed = pcall(vim.json.decode, raw_output)
-							if ok and parsed and parsed.error then
-								err_msg = "API Error: " .. (parsed.error.message or vim.inspect(parsed.error))
-							else
-								err_msg = "API Error:\n" .. raw_output
-							end
-						end
-
-						-- FIX: Split the error message into a table of strings without \n
-						local err_lines = vim.split(err_msg, "\n", { plain = true })
-
 						local line_content = vim.api.nvim_buf_get_lines(0, sse_state.line, sse_state.line + 1, false)[1]
 						if line_content and line_content:match("Thinking%.%.%.") then
 							vim.api.nvim_buf_set_lines(
@@ -541,7 +501,7 @@ function M.setup(llm, services, prompts)
 								sse_state.line,
 								sse_state.line + 1,
 								false,
-								err_lines -- Pass the safe table here
+								{ "Error receiving response." }
 							)
 						end
 					end
