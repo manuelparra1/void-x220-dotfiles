@@ -9,7 +9,8 @@ export BAT_THEME="Catppuccin Mocha"
 # alias ls='ls --color=auto'
 alias l='eza -1s oldest'
 alias ls='eza -1s newest'
-
+alias fd='fdfind'
+alias bat='batcat'
 
 # is it possible to make this command sort by time and date at the bottom?
 #alias ls='eza -s modified --reverse'
@@ -24,16 +25,16 @@ alias chatgpt4o='chatgpt.sh -i "respond in a simple and concise manner" --model 
 # BlueBirdBack/groq
 alias groq='python ~/.bin/groq/scripts/run_groq.py short'
 
-#alias fzfvim='nvim $(fzf --preview '\''bat --style=numbers --color=always {}'\'' --query="$1" --exit-0)'
-#alias fzfvim='nvim "$(FZF_DEFAULT_COMMAND="fd --type f -e md -e lua -e txt -e sh -e py -e cpp -e json -e conf -e zshrc" FZF_DEFAULT_OPTS="--preview '\''bat --style=numbers --color=always {}'\''" fzf --query="$1" --exit-0)"'
+#alias fzfvim='nvim $(fzf --preview '\''batcat --style=numbers --color=always {}'\'' --query="$1" --exit-0)'
+#alias fzfvim='nvim "$(FZF_DEFAULT_COMMAND="fdfind --type f -e md -e lua -e txt -e sh -e py -e cpp -e json -e conf -e zshrc" FZF_DEFAULT_OPTS="--preview '\''batcat --style=numbers --color=always {}'\''" fzf --query="$1" --exit-0)"'
 
 # Debian Distro Specific Version
 
 fzfvim() {
     local query="${1:-}"
     
-    FZF_DEFAULT_COMMAND="fd -H --type f -e md -e lua -e txt -e sh -e py -e cpp -e json -e conf -e zshrc" \
-    FZF_DEFAULT_OPTS="--preview 'bat --style=numbers --color=always {}' --bind 'change:reload:fd -H --type f -e md -e lua -e txt -e sh -e py -e cpp -e json -e conf -e zshrc {q} || true'" \
+    FZF_DEFAULT_COMMAND="fdfind -H --type f -e md -e lua -e txt -e sh -e py -e cpp -e json -e conf -e zshrc" \
+    FZF_DEFAULT_OPTS="--preview 'batcat --style=numbers --color=always {}' --bind 'change:reload:fdfind -H --type f -e md -e lua -e txt -e sh -e py -e cpp -e json -e conf -e zshrc {q} || true'" \
     fzf --ansi --phony --query="$query" --exit-0 | while IFS= read -r file; do
         nvim "$file"
     done
@@ -57,7 +58,7 @@ livegrep() {
           eval \"\$cmd\" | tr \"\\0\" \"\\n\"
         ' _ {q} || true" \
         --delimiter ':' \
-        --preview 'file={1}; last_word=$(echo {q} | awk "{print \$NF}"); line=$(rg --line-number --no-heading --smart-case "$last_word" "$file" | head -n1 | cut -d: -f1); bat --style=numbers --color=always --highlight-line "$line" "$file"' \
+        --preview 'file={1}; last_word=$(echo {q} | awk "{print \$NF}"); line=$(rg --line-number --no-heading --smart-case "$last_word" "$file" | head -n1 | cut -d: -f1); batcat --style=numbers --color=always --highlight-line "$line" "$file"' \
         --preview-window 'right:50%:wrap' \
         --bind 'enter:execute:line=$(rg --line-number --no-heading --smart-case "$(echo {q} | awk "{print \$NF}")" {1} | head -n1 | cut -d: -f1); nvim "+normal! ${line}G" {1}'
 }
@@ -140,10 +141,13 @@ eval "$(zoxide init --cmd cd zsh)"
 
 #  Settings
 #if [[ "$TERM" == "xterm-kitty" || "$TERM" == "xterm-256color" || "$TERM_PROGRAM" == "WarpTerminal" ]]; then
-if [[ "$TERM" == "xterm-kitty" || "$TERM" == "tmux-256color" || "$TERM_PROGRAM" == "WarpTerminal" ]]; then
-    export TERM=xterm-256color
-    eval "$(starship init zsh)"
-fi
+## if [[ "$TERM" == "xterm-kitty" || "$TERM" == "tmux-256color" || "$TERM_PROGRAM" == "WarpTerminal" ]]; then
+##     export TERM=xterm-256color
+##     eval "$(starship init zsh)"
+## fi
+
+eval "$(starship init zsh)"
+export TERM=xterm-256color
 
 #eval "$(zoxide init zsh)"
 
@@ -152,7 +156,7 @@ fi
 
 fzpdf() {
     local file filename
-    file=$(fd -epdf | fzf --preview 'pdftotext {} - 2>/dev/null | head -50')
+    file=$(fdfind -epdf | fzf --preview 'pdftotext {} - 2>/dev/null | head -50')
     if [[ -n "$file" ]]; then
         zathura --fork --mode fullscreen "$file"
         sleep 0.2
@@ -204,3 +208,7 @@ scr() {
     # Run the script with uv environment WITHOUT changing directory
     uv run --project "$env_path" python "$script_path" "$@"
 }
+
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion

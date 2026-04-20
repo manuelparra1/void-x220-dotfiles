@@ -1,0 +1,10 @@
+show=drun
+width=25%
+height=40%
+location=center
+xoffset=500
+yoffset=500
+term=kitty
+insensitive=true
+hide_scroll=true
+normal_window=true
